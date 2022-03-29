@@ -1,0 +1,11 @@
+[Unit]
+Description=ADS-B Monitor
+After=network.target chrony.service readsb.service
+
+[Service]
+ExecStart=python3 /home/pi/adsmonitor/main.py
+User=pi
+WorkingDirectory=/home/pi/adsmonitor
+
+[Install]
+WantedBy=multi-user.target
