@@ -68,28 +68,43 @@ total_planes = 0
 
 def frame_boarder(image, draw, height, width):
     global planes_count
+
     #Title Bar
+
     draw.text((0, 0), "ADS-B Monitor", font=font_bold_10)
     draw.line([(0, (spacing_height_10*1)+offset_10), (width, (spacing_height_10*1)+offset_10)], width=1)
-
-    #Plane
-    image.paste(bmp, (offset_10, 38))
-    draw.line([(65, (spacing_height_10*1)+offset_10), (65, height-spacing_height_10*1-offset_10)], width=1)
-
-    #Dynamic
 
     #Uptime
     current_time = datetime.now()
     time_delta = current_time - boot_time
     timespan = strfdelta(time_delta,"%H:%M:%S")
-    draw.text((width-spacing_width_10*3-spacing_width_10*len(timespan), 0), "UP", font = font_bold_10)
-    draw.text((width-spacing_width_10*len(timespan), 0), timespan, font = font_reg_10)
+    tb_offset_x = width - spacing_width_10*len(timespan)
+    draw.text((tb_offset_x, 0), timespan, font = font_reg_10)
+    tb_offset_x = tb_offset_x - spacing_width_10*3
+    draw.text((tb_offset_x, 0), "UP", font = font_bold_10)
+
+    #Temperature
+    temp = float(os.popen("vcgencmd measure_temp").read().split("=")[1].split("'")[0])
+    tb_offset_x = tb_offset_x - spacing_width_10*(len(str(temp))+1)
+    draw.text((tb_offset_x, 0), str(temp), font=font_reg_10)
+    tb_offset_x = tb_offset_x - spacing_width_10*5
+    draw.text((tb_offset_x, 0), "TEMP", font=font_bold_10)
+
+    #Plane Image
+    image.paste(bmp, (offset_10, 38))
+    draw.line([(65, (spacing_height_10*1)+offset_10), (65, height-spacing_height_10*1-offset_10)], width=1)
 
     #Bottom Bar
-    draw.text((0, height-spacing_height_10*1), "TOTAL", font=font_bold_10)
-    draw.text((spacing_width_10*6, height-spacing_height_10*1), str(total_planes), font=font_reg_10)
-    draw.line([(0, height-spacing_height_10*1-offset_10), (width, height-spacing_height_10*1-offset_10)], width=1)
+    bb_offset_x = 0
+    bb_offset_y = height-spacing_height_10*1
+    draw.line([(bb_offset_x, bb_offset_y-offset_10), (width, bb_offset_y-offset_10)], width=1)
 
+    #Total Planes
+    draw.text((bb_offset_x, bb_offset_y), "TOTAL", font=font_bold_10)
+    bb_offset_x = bb_offset_x + spacing_width_10*6
+    draw.text((bb_offset_x, bb_offset_y), str(total_planes), font=font_reg_10)
+
+    #SSID + IP
     hostname_cmd = os.popen("hostname -I").read().split()
     if len(hostname_cmd) >= 1:
         local_ip = hostname_cmd[0]
@@ -100,8 +115,11 @@ def frame_boarder(image, draw, height, width):
         ssid = ssid_cmd[1]
     else:
         ssid = "NO WIFI"
-    draw.text((width-spacing_width_10*len(local_ip), height-spacing_height_10*1), local_ip, font = font_reg_10)
-    draw.text((width-spacing_width_10*len(local_ip)-spacing_width_10*(len(ssid)+1), height-spacing_height_10*1), ssid, font = font_bold_10)
+
+    bb_offset_x = width-spacing_width_10*len(local_ip)
+    draw.text((bb_offset_x, bb_offset_y), local_ip, font = font_reg_10)
+    bb_offset_x = bb_offset_x - spacing_width_10*(len(ssid)+1)
+    draw.text((bb_offset_x, bb_offset_y), ssid, font = font_bold_10)
 
 client = httpx.Client(http2=True, base_url="http://127.0.0.1/tar1090")
 
