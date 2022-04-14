@@ -50,4 +50,4 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now adsbmonitor.service
 ```
 
-It will try to grab `127.0.0.1:30005` in beast mode. Edit yourself to match your situation.
+It will try to grab `127.0.0.1/dat/aircraft.json` in Tar1090. Edit yourself to match your situation.
